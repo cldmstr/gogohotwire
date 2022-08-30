@@ -1,2 +1,3 @@
-**/gogohotwire
+gogohotwire
+!cmd/gogohotwire
 **/node_modules
