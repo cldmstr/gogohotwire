@@ -1,0 +1,12 @@
+<div class="alert alert-danger">
+  <i class="fa-solid fa-triangle-exclamation"></i> This page encountered an error: {{ printf "%s" .Error }} <a data-bs-toggle="collapse" href="#collapseAlertDetails" role="button" aria-expanded="false" aria-controls="collapseExample">Details</a>
+    <div class="collapse" id="collapseAlertDetails">
+      <hr/>
+      <pre class="text-body">
+        {{ with .RequestID }}Request ID: {{ . }}{{ end }}
+        {{ if global "development" }}
+        Error: {{ printf "%+v" .Error }}
+        {{ end }}
+      </pre>
+    </div>
+</div>

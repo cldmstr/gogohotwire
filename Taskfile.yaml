@@ -1,0 +1,94 @@
+# https://taskfile.dev
+
+version: "3"
+
+tasks:
+  default:
+    desc: generate all assets and generated source code files, run all checks (linting, tests) and finally build the executable
+    cmds:
+      - task: generate
+      - task: check
+      - task: build
+
+  build:
+    desc: build all packages
+    cmds:
+      - go build ./...
+
+  build-dist:
+    desc: build gogohotwire app binary
+    cmds:
+      - go build -ldflags "-s -w" -trimpath -o gogohotwire ./cmd/gogohotwire/
+      - mkdir -p ./docker/bin
+      - cp gogohotwire ./docker/bin
+
+  generate:
+    desc: generate all assets and generated source code files
+    cmds:
+      - go generate ./...
+      - go mod tidy
+    preconditions:
+      - sh: "which node >/dev/null"
+        msg: "Please install node from https://nodejs.org/en/"
+      - sh: "which esbuild >/dev/null"
+        msg: "Please install esbuild from https://github.com/evanw/esbuild or with `npm install -g esbuild`"
+
+  check:
+    desc: run all checks, linting and tests
+    cmds:
+      - tesk: lint
+      - task: test
+
+  lint:
+    deps:
+      - lint-go
+
+  lint-go:
+    desc: run golang linting
+    cmds:
+      - golangci-lint run ./...
+
+  test:
+    desc: run all unit tests
+    cmds:
+      - go test -race -coverprofile=coverage.out -covermode atomic ./...
+      - defer: rm coverage.out
+      - goverreport -packages -sort block
+    preconditions:
+      - sh: "which goverreport >/dev/null"
+        msg: "Please install goverreport from https://github.com/mcubik/goverreport"
+
+  test-verbose:
+    desc: run all unit tests with verbose output
+    cmds:
+      - go test -v -race -coverprofile=coverage.out -covermode atomic ./...
+      - defer: rm coverage.out
+      - goverreport -packages -sort block
+    preconditions:
+      - sh: "which goverreport >/dev/null"
+        msg: "Please install goverreport from https://github.com/mcubik/goverreport"
+
+  dev:
+    desc: run gogohotwire app in watch mode
+    cmds:
+      - cmd: gow -c -e=go,mod,sum,html,css,js,env,woff2 run ./cmd/gogohotwire/
+        ignore_error: true
+    preconditions:
+      - sh: "which gow >/dev/null"
+        msg: "Please install gow from https://github.com/mitranim/gow"
+    silent: true
+
+  fixfmt:
+    desc: fix formatting for Go source code
+    cmds:
+      - gofumpt -l -s -w .
+    preconditions:
+      - sh: "which gofumpt >/dev/null"
+        msg: "Please install gofumpt from https://github.com/mvdan/gofumpt"
+
+  clean:
+    desc: clean temporary files
+    cmds:
+      - find . -name coverage.out -delete > /dev/null
+      - find . -name gogohotwire -executable -type f > /dev/null
+      - rm -rf vendor/

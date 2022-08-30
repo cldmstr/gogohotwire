@@ -1,0 +1,34 @@
+@import "bootstrap/scss/bootstrap";
+
+:root {
+  --turq-light: #5dc9e2;
+  --turq-mid: #50b7e0;
+  --turq-dark: #007d9c;
+}
+
+.bg-gopher {
+  background: var(--turq-dark);
+}
+
+.bg-gopher-mid {
+  background: var(--turq-mid);
+}
+
+.bg-gopher-light {
+  background: var(--turq-light);
+}
+
+body {
+  background-image: linear-gradient(45deg, #000000 25%, transparent 25%), linear-gradient(-45deg, #000000 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #000000 75%), linear-gradient(-45deg, transparent 75%, #000000 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.card {
+  background: var(--turq-med);
+}
+
+.card-header {
+  background: var(--turq-dark);
+  color: white;
+}

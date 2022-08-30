@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "sourceMap": true,
+    "lib": ["esnext", "dom"],
+    "allowUmdGlobalAccess": true,
+    "useDefineForClassFields": false,
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts"]
+}
