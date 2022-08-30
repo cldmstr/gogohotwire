@@ -1,6 +1,6 @@
 # GOGO Hotwire
 
-This is an example project to show one way to use the Hotwire HTML-over-the-wire frameworks in a Golang service.
+This is an example project to show one way to use the [Hotwire HTML-over-the-wire frameworks](https://hotwired.dev) in a Golang service.
 
 ## Run
 
