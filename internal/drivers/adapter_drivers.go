@@ -13,7 +13,7 @@ func NewDriversStore() DriversStore {
 			LastName:   "Kowalski",
 			NickName:   "Cheetah",
 			Attributes: []string{"Top Speed", "Acceleration"},
-			Motto:      "You break, you loose!",
+			Motto:      "You brake, you loose!",
 			Color:      "blue",
 		},
 		&Driver{
