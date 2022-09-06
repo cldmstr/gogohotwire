@@ -11,6 +11,6 @@ func main() {
 
 	err := a.Run()
 	if err != nil {
-		log.Fatalln("%+v", err)
+		log.Fatalf("%+v\n", err)
 	}
 }

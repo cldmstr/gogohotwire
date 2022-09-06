@@ -4,9 +4,7 @@
       <hr/>
       <pre class="text-body">
         {{ with .RequestID }}Request ID: {{ . }}{{ end }}
-        {{ if global "development" }}
         Error: {{ printf "%+v" .Error }}
-        {{ end }}
       </pre>
     </div>
 </div>

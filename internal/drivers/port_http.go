@@ -3,6 +3,7 @@ package drivers
 import (
 	"embed"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
@@ -34,6 +35,8 @@ func RegisterRoutes(r echoRouter, t *template.Renderer, service DriversService) 
 	}
 
 	r.GET("", h.list)
+	r.GET("/:id/icon", h.icon)
+	r.GET("/:id/details", h.details)
 
 	return nil
 }
@@ -48,5 +51,35 @@ func (h *htmlHandler) list(c echo.Context) error {
 		"Drivers": drivers,
 	}
 
-	return c.Render(http.StatusOK, "drivers/card_list.html", data)
+	return c.Render(http.StatusOK, "drivers/list.html", data)
+}
+
+func (h *htmlHandler) icon(c echo.Context) error {
+	key := c.Param("id")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return errors.Wrapf(err, "failed due to baddly formatted id %q", key)
+	}
+
+	driver, err := h.service.Driver(id)
+	if err != nil {
+		return errors.Errorf("failed to load driver %q", key)
+	}
+
+	return c.Render(http.StatusOK, "drivers/icon.html", driver)
+}
+
+func (h *htmlHandler) details(c echo.Context) error {
+	key := c.Param("id")
+	id, err := strconv.Atoi(key)
+	if err != nil {
+		return errors.Wrapf(err, "failed due to baddly formatted id %q", key)
+	}
+
+	driver, err := h.service.Driver(id)
+	if err != nil {
+		return errors.Errorf("failed to load driver %q", key)
+	}
+
+	return c.Render(http.StatusOK, "drivers/details.html", driver)
 }

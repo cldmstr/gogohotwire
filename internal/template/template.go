@@ -1,7 +1,9 @@
 package template
 
 import (
+	"bytes"
 	"embed"
+	"encoding/base64"
 	"io"
 	"io/fs"
 	"path/filepath"
@@ -36,32 +38,48 @@ func New(developmentMode bool) (*Renderer, error) {
 	return t, nil
 }
 
-func (t *Renderer) AddFS(namespace string, fsys fs.FS, isGlobal bool) error {
+func (r *Renderer) AddFS(namespace string, fsys fs.FS, isGlobal bool) error {
 	sub, err := fs.Sub(fsys, "views")
 	if err != nil {
 		return errors.Wrapf(err, "failed to add filesystem %q", namespace)
 	}
-	t.templates[namespace] = sub
+	r.templates[namespace] = sub
 	if isGlobal {
-		t.globalPaths = append(t.globalPaths, filepath.Join(namespace, "*.html"))
+		r.globalPaths = append(r.globalPaths, filepath.Join(namespace, "*.html"))
 	}
 
 	return nil
 }
 
-func (t *Renderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	globals := map[string]interface{}{
-		"csrfToken":   c.Get("csrf"),
-		"print":       c.QueryParam("print") != "",
-		"development": t.developmentMode,
+func (r *Renderer) RenderSSE(res *echo.Response, name string, data interface{}) error {
+	tmpl, err := r.newTemplate(name)
+	if err != nil {
+		return errors.Wrap(err, "failed to initialize template")
 	}
 
-	tmpl := template.New("")
-	tmpl.Funcs(renderFuncs(c, tmpl, globals))
-	namespace := filepath.Join(filepath.Dir(name), "*.html")
-	tmpl, err := tmpl.ParseFS(t.templates, append(t.globalPaths, namespace)...)
+	event := bytes.NewBufferString("data: ")
+	encoder := base64.NewEncoder(base64.StdEncoding, event)
+	defer encoder.Close()
+
+	err = tmpl.ExecuteTemplate(encoder, filepath.Base(name), data)
 	if err != nil {
-		return errors.Wrapf(err, "failed to load templates %q", namespace)
+		return errors.Wrapf(err, "failed to template %q", name)
+	}
+	event.WriteString("\n\n")
+
+	_, err = res.Write(event.Bytes())
+	if err != nil {
+		return errors.Wrap(err, "failed to write event")
+	}
+	res.Flush()
+
+	return nil
+}
+
+func (r *Renderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	tmpl, err := r.newTemplate(name)
+	if err != nil {
+		return errors.Wrap(err, "failed to initialize template")
 	}
 
 	applicationData := map[string]interface{}{
@@ -75,8 +93,7 @@ func (t *Renderer) Render(w io.Writer, name string, data interface{}, c echo.Con
 		c.Response().Header().Add("Content-Type", "text/vnd.turbo-stream.html")
 		err = tmpl.ExecuteTemplate(w, filepath.Base(name), data)
 	case c.Request().Header.Get("Turbo-Frame") != "":
-		applicationData["FrameID"] = c.Request().Header.Get("Turbo-Frame")
-		err = tmpl.ExecuteTemplate(w, "turbo-frame.html", applicationData)
+		err = tmpl.ExecuteTemplate(w, filepath.Base(name), data)
 	default:
 		err = tmpl.ExecuteTemplate(w, "application.html", applicationData)
 	}
@@ -85,6 +102,18 @@ func (t *Renderer) Render(w io.Writer, name string, data interface{}, c echo.Con
 	}
 
 	return nil
+}
+
+func (r *Renderer) newTemplate(name string) (*template.Template, error) {
+	tmpl := template.New("")
+	tmpl.Funcs(renderFuncs(tmpl))
+	namespace := filepath.Join(filepath.Dir(name), "*.html")
+	tmpl, err := tmpl.ParseFS(r.templates, append(r.globalPaths, namespace)...)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to load templates %q", namespace)
+	}
+
+	return tmpl, nil
 }
 
 type templateFS map[string]fs.FS

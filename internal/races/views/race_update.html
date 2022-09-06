@@ -1,0 +1,35 @@
+<turbo-stream action="update" target="race-update">
+  <template>
+    {{- with .Update -}}
+    <div class="container m-0">
+      <div class="row">
+        <div class="col-11">
+          <img src="/static/images/none.png" width="{{ .One }}" height="2" alt="">
+          <img src="/static/images/blue-gopher.png" height="60" width="64" alt="">
+        </div>
+        <div class="col-1">
+          <span class="checkered w-25 h-100">    </span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-11">
+          <img src="/static/images/none.png" width="{{ .Two }}" height="2" alt="">
+          <img src="/static/images/beige-gopher.png" height="60" width="64" alt="">
+        </div>
+        <div class="col-1">
+          <span class="checkered w-25 h-100">    </span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-11">
+          <img src="/static/images/none.png" width="{{ .Three }}" height="2" alt="">
+          <img src="/static/images/black-gopher.png" height="60" width="64" alt="">
+        </div>
+        <div class="col-1">
+          <span class="checkered w-25 h-100">    </span>
+        </div>
+      </div>
+    </div>
+    {{- end -}}
+  </template>
+</turbo-stream>

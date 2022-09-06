@@ -1,0 +1,14 @@
+<div data-controller="race-update">
+  <input type="hidden" id="raceid" value="{{ .Race.Id }}" data-race-update-target="raceid">
+  <div class="col">
+    <div class="card mt-2 rounded-3 shadow-sm border-dark">
+      <div class="card-header">
+        <span class="fs-4 text-white">{{ .Race.Name }}</span>
+      </div>
+      <div class="card-body">
+        <turbo-frame id="race-update">
+        </turbo-frame>
+      </div>
+    </div>
+  </div>
+</div>

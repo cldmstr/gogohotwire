@@ -12,19 +12,19 @@
 <body>
 <div class="container" style="min-width: 98%">
   <div class="d-flex flex-column flex-md-row align-items-center justify-content-around bg-gopher my-3 px-5">
-    <div><a href="/races" class="text-decoration-none" data-turbo-frame="content" data-turbo-action="advance"><span class="fs-1 text-white">Races</span></a></div>
+    <div><a href="/races" class="text-decoration-none" data-turbo-frame="races"><span class="fs-1 text-white">Races</span></a></div>
     <a href="/" class="d-flex align-items-center text-dark py-3">
-      <img alt="Vroom Vroom Gopher!" src="static/images/gophcart_red.png" width="100">
+      <img alt="Vroom Vroom Gopher!" src="static/images/gopher-red.png" width="100">
     </a>
     <div class="fs-1 text-white" data-controller="toggle-drivers">Drivers</div>
   </div>
   <div class="row">
     <div id="content-column" class="col-12 bg-gopher-light min-vh-100">
-      <turbo-frame id="content">
+      <turbo-frame id="races">
         {{ yield .YieldTemplate .YieldData }}
       </turbo-frame>
     </div>
-    <div id="drivers-column" class="col-3 bg-gopher-light min-vh-100 invisible">
+    <div id="drivers-column" class="col-4 bg-gopher-light min-vh-100 invisible">
       <turbo-frame id="drivers" src="/drivers" loading="lazy">
       </turbo-frame>
     </div>

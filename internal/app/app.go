@@ -3,7 +3,6 @@ package app
 import (
 	"embed"
 	"net/http"
-	"os"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -33,7 +32,7 @@ func (a *App) Run() error {
 	e := echo.New()
 
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnixMs
-	zerologger := zerolog.New(os.Stdout)
+	zerologger := zerolog.New(zerolog.NewConsoleWriter())
 	zerologger = zerologger.Level(zerolog.DebugLevel)
 
 	logger := lecho.From(zerologger,
@@ -72,8 +71,10 @@ func (a *App) Run() error {
 		return c.Redirect(http.StatusPermanentRedirect, "/races")
 	})
 
+	racesService := races.New()
+
 	racesGroup := e.Group(races.DomainPrefix)
-	err = races.RegisterRoutes(racesGroup, renderer)
+	err = races.RegisterRoutes(racesGroup, renderer, racesService, logger)
 	if err != nil {
 		return errors.Wrap(err, "failed to register races domain")
 	}

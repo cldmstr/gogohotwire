@@ -1,16 +1,19 @@
-<form action="/races" method="post">
-  <div class="input-group my-3 border-dark border rounded">
-    <div class="input-group-prepend">
-      <span class="input-group-text bg-gopher-mid">New Race</span>
+<turbo-frame id="races">
+  <form action="/races" method="post">
+    <div class="input-group my-3 border-dark border rounded">
+      <div class="input-group-prepend">
+        <span class="input-group-text bg-gopher-mid">New Race</span>
+      </div>
+      <input id="race-name" name="race-name" type="text" class="form-control" placeholder="Race Name"
+             aria-label="Race Name"/>
+      <div class="input-group-append">
+        <input type="submit" value="+" class="btn bg-gopher-mid text-white"/>
+      </div>
     </div>
-    <input id="race-name" name="race-name" type="text" class="form-control" placeholder="Race Name" aria-label="Race Name" />
-    <div class="input-group-append">
-      <input type="submit" value="+" class="btn bg-gopher-mid text-white" />
-    </div>
-  </div>
-</form>
-{{- range .Races -}}
-<turbo-frame id="races-list">
-  {{ template "race_summary.partial.html" . }}
+  </form>
+  <turbo-frame id="races-list">
+    {{- range .Races -}}
+    {{ template "race_summary.partial.html" . }}
+    {{- end -}}
+  </turbo-frame>
 </turbo-frame>
-{{- end -}}
