@@ -170,7 +170,7 @@ func (h *httpHandler) start(c echo.Context) error {
 	}
 
 	yieldData := map[string]interface{}{
-		"YieldTemplate": "races/race_running.partial.html",
+		"YieldTemplate": "race_running.partial.html",
 		"YieldData":     data,
 	}
 
