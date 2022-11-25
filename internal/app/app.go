@@ -4,15 +4,13 @@ import (
 	"embed"
 	"net/http"
 
+	"github.com/cldmstr/gogohotwire/drivers"
+	"github.com/cldmstr/gogohotwire/races"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/ziflex/lecho/v3"
-
-	"github.com/cldmstr/gogohotwire/internal/races"
-
-	"github.com/cldmstr/gogohotwire/internal/drivers"
 
 	"github.com/cldmstr/gogohotwire/assets"
 	"github.com/cldmstr/gogohotwire/internal/template"
