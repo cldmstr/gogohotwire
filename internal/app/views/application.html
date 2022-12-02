@@ -1,34 +1,34 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Hotwire Race</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <head>
+    <title>Hotwire Race</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
 
-  <link rel="stylesheet" href="/static/styles/application.css"/>
+    <link rel="stylesheet" href="/static/styles/application.css"/>
 
-  <script src="/static/js/bundle.js"></script>
-</head>
+    <script src="/static/js/bundle.js"></script>
+  </head>
 
-<body>
-<div class="container" style="min-width: 98%">
-  <div class="d-flex flex-column flex-md-row align-items-center justify-content-around bg-gopher my-3 px-5">
-    <div><a href="/races" class="text-decoration-none" data-turbo-frame="races"><span class="fs-1 text-white">Races</span></a></div>
-    <a href="/" class="d-flex align-items-center text-dark py-3">
-      <img alt="Vroom Vroom Gopher!" src="static/images/gopher-red.png" width="100">
-    </a>
-    <div class="fs-1 text-white" data-controller="toggle-drivers">Drivers</div>
-  </div>
-  <div class="row">
-    <div id="content-column" class="col-12 bg-gopher-light min-vh-100">
-      <turbo-frame id="races">
-        {{ yield .YieldTemplate .YieldData }}
-      </turbo-frame>
+  <body>
+  <div class="container" style="min-width: 98%">
+    <div class="d-flex flex-column flex-md-row align-items-center justify-content-around bg-gopher my-3 px-5">
+      <div><a href="/races" class="text-decoration-none" data-turbo-frame="races"><span class="fs-1 text-white">Races</span></a></div>
+      <a href="/" class="d-flex align-items-center text-dark py-3">
+        <img alt="Vroom Vroom Gopher!" src="static/images/gopher-red.png" width="100">
+      </a>
+      <div class="fs-1 text-white" data-controller="toggle-drivers">Drivers</div>
     </div>
-    <div id="drivers-column" class="col-4 bg-gopher-light min-vh-100 invisible">
-      <turbo-frame id="drivers" src="/drivers" loading="lazy">
-      </turbo-frame>
+    <div class="row">
+      <div id="content-column" class="col-12 bg-gopher-light min-vh-100">
+        <turbo-frame id="races">
+          {{ yield .YieldTemplate .YieldData }}
+        </turbo-frame>
+      </div>
+      <div id="drivers-column" class="col-4 bg-gopher-light min-vh-100 invisible">
+        <turbo-frame id="drivers" src="/drivers" loading="lazy">
+        </turbo-frame>
+      </div>
     </div>
   </div>
-</div>
-</body>
+  </body>
 </html>

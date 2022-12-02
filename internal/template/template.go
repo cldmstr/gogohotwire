@@ -57,6 +57,8 @@ func (r *Renderer) RenderSSE(res *echo.Response, name string, data interface{}) 
 		return errors.Wrap(err, "failed to initialize template")
 	}
 
+	res.Header().Set(echo.HeaderContentType, "text/event-stream")
+
 	event := bytes.NewBufferString("data: ")
 	encoder := base64.NewEncoder(base64.StdEncoding, event)
 	defer encoder.Close()
@@ -85,7 +87,6 @@ func (r *Renderer) Render(w io.Writer, name string, data interface{}, c echo.Con
 	applicationData := map[string]interface{}{
 		"YieldTemplate": filepath.Base(name),
 		"YieldData":     data,
-		"Print":         c.QueryParam("print") != "",
 	}
 
 	switch {

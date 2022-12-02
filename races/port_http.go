@@ -80,24 +80,7 @@ func (h *httpHandler) details(c echo.Context) error {
 		return errors.Wrapf(err, "failed to load race %q", id.String())
 	}
 
-	templateName := "race_ready.partial.html"
-	switch race.state {
-	case Finished:
-		templateName = "race_finished.partial.html"
-	case Running:
-		templateName = "race_running.partial.html"
-	}
-
-	data := map[string]interface{}{
-		"Race": race,
-	}
-
-	yieldData := map[string]interface{}{
-		"YieldTemplate": templateName,
-		"YieldData":     data,
-	}
-
-	return c.Render(http.StatusOK, "races/race_details.stream.html", yieldData)
+	return c.Render(http.StatusOK, "races/race_details.stream.html", raceDetailYieldData(race))
 }
 
 func (h *httpHandler) create(c echo.Context) error {
@@ -129,22 +112,24 @@ func (h *httpHandler) raceUpdate(c echo.Context) error {
 		return errors.Wrapf(err, "failed to load race %q", id.String())
 	}
 	ctx := c.Request().Context()
-	c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
-	c.Response().WriteHeader(http.StatusOK)
 
 	if race.state != Running {
 		return nil
 	}
 
-	updateChan := make(chan RaceUpdate, 1)
-	defer close(updateChan)
-	race.Watch(updateChan)
+	watcherID, update, done, finished := race.Watch()
+	if finished {
+		return h.renderer.RenderSSE(c.Response(), "races/race_details.stream.html", raceDetailYieldData(race))
+	}
+	defer race.UnWatch(watcherID)
 
-	select {
-	case <-ctx.Done():
-		return nil
-	default:
-		for r := range updateChan {
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-done:
+			return h.renderer.RenderSSE(c.Response(), "races/race_details.stream.html", raceDetailYieldData(race))
+		case r := <-update:
 			err := h.renderer.RenderSSE(c.Response(), "races/race_update.html", map[string]interface{}{
 				"Update": r,
 			})
@@ -153,8 +138,6 @@ func (h *httpHandler) raceUpdate(c echo.Context) error {
 			}
 		}
 	}
-
-	return nil
 }
 
 func (h *httpHandler) start(c echo.Context) error {
@@ -175,4 +158,24 @@ func (h *httpHandler) start(c echo.Context) error {
 	}
 
 	return c.Render(http.StatusOK, "races/race_details.stream.html", yieldData)
+}
+
+func raceDetailYieldData(race *Race) map[string]interface{} {
+	templateName := "race_ready.partial.html"
+	switch race.state {
+	case Finished:
+		templateName = "race_finished.partial.html"
+	case Running:
+		templateName = "race_running.partial.html"
+	}
+
+	data := map[string]interface{}{
+		"Race": race,
+	}
+
+	yieldData := map[string]interface{}{
+		"YieldTemplate": templateName,
+		"YieldData":     data,
+	}
+	return yieldData
 }

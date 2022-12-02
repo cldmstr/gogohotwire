@@ -1,6 +1,8 @@
 package races
 
 import (
+	"fmt"
+	"math/rand"
 	"sort"
 	"strings"
 	"time"
@@ -37,12 +39,19 @@ func (r RaceDriver) Rank() string {
 	}
 }
 
+type watcher struct {
+	id     uuid.UUID
+	update chan RaceUpdate
+	finish chan bool
+	closed bool
+}
+
 type Race struct {
 	Id       uuid.UUID
 	Name     string
-	Drivers  []RaceDriver
+	Drivers  []*RaceDriver
 	state    State
-	watchers []chan RaceUpdate
+	watchers []*watcher
 }
 
 func NewRace(name string) *Race {
@@ -67,12 +76,30 @@ func (r *Race) StatusColor() string {
 	}
 }
 
-func (r *Race) Watch(watcher chan RaceUpdate) {
+func (r *Race) Watch() (uuid.UUID, chan RaceUpdate, chan bool, bool) {
 	if r.state == Finished {
-		return
+		return uuid.Nil, nil, nil, true
 	}
 
+	w := make(chan RaceUpdate, 1)
+	d := make(chan bool, 1)
+	watcher := &watcher{
+		id:     uuid.New(),
+		update: w,
+		finish: d,
+	}
 	r.watchers = append(r.watchers, watcher)
+
+	return watcher.id, w, d, false
+}
+
+func (r *Race) UnWatch(id uuid.UUID) {
+	for _, w := range r.watchers {
+		if w.id == id {
+			fmt.Printf("Unwatch %v\n", w.id)
+			w.closed = true
+		}
+	}
 }
 
 func (r *Race) Start() {
@@ -82,25 +109,44 @@ func (r *Race) Start() {
 	r.state = Running
 
 	go func() {
-		for i := 0; i < 120; i++ {
+		defer r.Finish()
+	CheckeredFlag:
+		for {
 			time.Sleep(time.Millisecond * 100)
-			r.Drivers[0].Position += 2
-			r.Drivers[1].Position += 3
-			r.Drivers[2].Position += 5
+			for _, d := range r.Drivers {
+				d.Position += rand.Intn(12)
+			}
 			update := RaceUpdate{
 				One:   r.Drivers[0].Position,
 				Two:   r.Drivers[1].Position,
 				Three: r.Drivers[2].Position,
 			}
-			for _, c := range r.watchers {
-				c <- update
+			for _, w := range r.watchers {
+				if w.closed {
+					continue
+				}
+				w.update <- update
+			}
+			for _, d := range r.Drivers {
+				if d.Position > 750 {
+					break CheckeredFlag
+				}
 			}
 		}
-		r.Drivers[0].rank = 3
-		r.Drivers[1].rank = 1
-		r.Drivers[2].rank = 2
-		r.state = Finished
 	}()
+}
+
+func (r *Race) Finish() {
+	sort.Slice(r.Drivers, func(i, j int) bool {
+		return r.Drivers[i].Position < r.Drivers[j].Position
+	})
+	for pos, d := range r.Drivers {
+		d.rank = pos + 1
+	}
+	r.state = Finished
+	for _, w := range r.watchers {
+		w.finish <- true
+	}
 }
 
 type Races []*Race

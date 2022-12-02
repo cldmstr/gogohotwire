@@ -19,6 +19,7 @@ var _ RacesService = &raceService{}
 func New() RacesService {
 	s := raceService{}
 	s.races = make(map[uuid.UUID]*Race, 3)
+
 	s.prefillRaces()
 
 	return &s
@@ -28,8 +29,8 @@ type raceService struct {
 	races map[uuid.UUID]*Race
 }
 
-func (r *raceService) Race(id uuid.UUID) (*Race, error) {
-	race, ok := r.races[id]
+func (s *raceService) Race(id uuid.UUID) (*Race, error) {
+	race, ok := s.races[id]
 	if !ok {
 		return nil, errors.Errorf("no race found with id %q", id.String())
 	}
@@ -37,9 +38,9 @@ func (r *raceService) Race(id uuid.UUID) (*Race, error) {
 	return race, nil
 }
 
-func (r *raceService) Races() (Races, error) {
-	races := make(Races, 0, len(r.races))
-	for _, r := range r.races {
+func (s *raceService) Races() (Races, error) {
+	races := make(Races, 0, len(s.races))
+	for _, r := range s.races {
 		races = append(races, r)
 	}
 	sort.Sort(races)
@@ -47,36 +48,26 @@ func (r *raceService) Races() (Races, error) {
 	return races, nil
 }
 
-func (r *raceService) Create(name string) (*Race, error) {
-	race := &Race{
-		Id:   uuid.New(),
-		Name: name,
-		Drivers: []RaceDriver{
-			{
-				Id:       1,
-				rank:     0,
-				Position: 0,
-			},
-			{
-				Id:       2,
-				rank:     0,
-				Position: 0,
-			},
-			{
-				Id:       3,
-				rank:     0,
-				Position: 0,
-			},
+func (s *raceService) Create(name string) (*Race, error) {
+	race := NewRace(name)
+	race.Drivers = []*RaceDriver{
+		{
+			Id: 1,
 		},
-		state: Ready,
+		{
+			Id: 2,
+		},
+		{
+			Id: 3,
+		},
 	}
 
-	r.races[race.Id] = race
+	s.races[race.Id] = race
 	return race, nil
 }
 
-func (r *raceService) Start(id uuid.UUID) (*Race, error) {
-	race, err := r.Race(id)
+func (s *raceService) Start(id uuid.UUID) (*Race, error) {
+	race, err := s.Race(id)
 	if err != nil {
 		return nil, err
 	}
@@ -85,74 +76,67 @@ func (r *raceService) Start(id uuid.UUID) (*Race, error) {
 	return race, nil
 }
 
-func (r *raceService) prefillRaces() {
-	r1 := &Race{
-		Id:   uuid.New(),
-		Name: "Prairie Circuit",
-		Drivers: []RaceDriver{
-			{
-				Id:       1,
-				rank:     2,
-				Position: 180,
-			},
-			{
-				Id:       2,
-				rank:     3,
-				Position: 180,
-			},
-			{
-				Id:       3,
-				rank:     1,
-				Position: 180,
-			},
-		},
-		state: Finished,
+func (s *raceService) prefillRaces() {
+	names := []string{
+		"Prairie Circuit",
+		"Gophtona 500",
+		"South Rodent Ring",
 	}
-	r2 := &Race{
-		Id:   uuid.New(),
-		Name: "Gophtona 500",
-		Drivers: []RaceDriver{
-			{
-				Id:       1,
-				rank:     1,
-				Position: 180,
-			},
-			{
-				Id:       2,
-				rank:     3,
-				Position: 180,
-			},
-			{
-				Id:       3,
-				rank:     2,
-				Position: 180,
-			},
-		},
-		state: Finished,
+
+	for index, drivers := range initialDrivers() {
+		race := NewRace(names[index])
+		race.Drivers = drivers
+		s.races[race.Id] = race
 	}
-	r3 := &Race{
-		Id:   uuid.New(),
-		Name: "South Rodent Ring",
-		Drivers: []RaceDriver{
-			{
-				Id:       1,
-				rank:     1,
-				Position: 180,
-			},
-			{
-				Id:       2,
-				rank:     2,
-				Position: 180,
-			},
-			{
-				Id:       3,
-				rank:     3,
-				Position: 180,
-			},
+}
+
+func initialDrivers() [][]*RaceDriver {
+	drivers := make([][]*RaceDriver, 3)
+	drivers[0] = []*RaceDriver{
+		{
+			Id: 1,
 		},
-		state: Finished,
+		{
+			Id: 2,
+		},
+		{
+			Id: 3,
+		},
 	}
-	r.races[r1.Id] = r1
-	r.races[r2.Id] = r2
-	r.races[r3.Id] = r3
+	drivers[1] = []*RaceDriver{
+		{
+			Id:       1,
+			rank:     1,
+			Position: 180,
+		},
+		{
+			Id:       2,
+			rank:     3,
+			Position: 180,
+		},
+		{
+			Id:       3,
+			rank:     2,
+			Position: 180,
+		},
+	}
+	drivers[2] = []*RaceDriver{
+		{
+			Id:       1,
+			rank:     1,
+			Position: 180,
+		},
+		{
+			Id:       2,
+			rank:     2,
+			Position: 180,
+		},
+		{
+			Id:       3,
+			rank:     3,
+			Position: 180,
+		},
+	}
+
+	return drivers
 }
