@@ -36,7 +36,7 @@ tasks:
   check:
     desc: run all checks, linting and tests
     cmds:
-      - tesk: lint
+      - task: lint
       - task: test
 
   lint:
