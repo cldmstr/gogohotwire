@@ -4,10 +4,10 @@ This is an example project to show one way to use the [Hotwire HTML-over-the-wir
 Turbo and Stimulus in a Golang service.
 
 It attempts to cover all the basic and a few of the less basic use-cases you might use the frameworks
-for. Although the framework is very  straight-forward and mostly backend language agnostic, there are one or two
+for. Although Hotwire is very straight-forward and mostly backend language agnostic, there are one or two
 instances where it is not quite obvious how to use the framework on the server side. There are many good examples
 for Ruby and other languages. This project attempts to give you a template to work from for Golang.
-It is not meant as a substitute, but as an addtion to the excellent Hotwire docuemantation and
+It is not meant as a substitute, but as an addtion to the excellent Hotwire documentation and
 will hopefully offer enough bread-crumbs to get started or get past some not quite obvious issues encountered when
 working with the framework.
 
@@ -21,7 +21,7 @@ Service will be available on `http://localhost:8088`
 
 ## Service
 
-The service is a silly (and very minimal) take on a race management application. Most of the functionality is hopefully is obvious.
+The service is a silly (and very minimal) take on a race management application. Most of the functionality is hopefully obvious.
 There are two "domains": races and drivers.
 
 - Create a race by typing in a name and pressing enter or the + button.
@@ -61,3 +61,7 @@ template. This is built in to Ruby, but can be added to the go templates by impl
 
 - Install [Task](https://taskfile.dev)
 - Run `task dev` to start service and reload on file changes
+
+## Special Thanks
+
+Awesome images by and (c) Erick Zelaya
